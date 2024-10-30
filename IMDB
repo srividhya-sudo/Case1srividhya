@@ -1,0 +1,104 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMnPB6QlcAnH6JLlsBw6QLR",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/srividhya-sudo/Case1srividhya/blob/main/IMDB\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 6,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "FskBT28ByxHx",
+        "outputId": "ba598c3c-4ea5-4976-fcdb-135ab6485ea3"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Accuracy: 1.00\n",
+            "              precision    recall  f1-score   support\n",
+            "\n",
+            "    negative       1.00      1.00      1.00        22\n",
+            "    positive       1.00      1.00      1.00        18\n",
+            "\n",
+            "    accuracy                           1.00        40\n",
+            "   macro avg       1.00      1.00      1.00        40\n",
+            "weighted avg       1.00      1.00      1.00        40\n",
+            "\n"
+          ]
+        }
+      ],
+      "source": [
+        "import pandas as pd\n",
+        "import re\n",
+        "from sklearn.model_selection import train_test_split\n",
+        "from sklearn.feature_extraction.text import CountVectorizer\n",
+        "from sklearn.linear_model import LogisticRegression\n",
+        "from sklearn.metrics import accuracy_score, classification_report\n",
+        "\n",
+        "# Load the dataset\n",
+        "data = pd.read_csv('IMDB_200_reviews_sample.csv')\n",
+        "\n",
+        "# Clean the text data\n",
+        "def clean_text(text):\n",
+        "    text = re.sub(r'<.*?>', '', text)  # Remove HTML tags\n",
+        "    text = re.sub(r'[^\\w\\s]', '', text)  # Remove punctuation\n",
+        "    return text.lower()  # Convert to lowercase\n",
+        "\n",
+        "data['review'] = data['review'].apply(clean_text)\n",
+        "\n",
+        "# Split the dataset into features and labels\n",
+        "X = data['review']\n",
+        "y = data['sentiment']  # Assuming 'sentiment' column has labels 0 (negative) and 1 (positive)\n",
+        "\n",
+        "# Split into training and test sets\n",
+        "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n",
+        "\n",
+        "# Vectorization\n",
+        "vectorizer = CountVectorizer()\n",
+        "X_train_vec = vectorizer.fit_transform(X_train)\n",
+        "X_test_vec = vectorizer.transform(X_test)\n",
+        "\n",
+        "# Train the Logistic Regression model\n",
+        "model = LogisticRegression()\n",
+        "model.fit(X_train_vec, y_train)\n",
+        "\n",
+        "# Make predictions on the test set\n",
+        "y_pred = model.predict(X_test_vec)\n",
+        "\n",
+        "# Evaluate the model\n",
+        "accuracy = accuracy_score(y_test, y_pred)\n",
+        "report = classification_report(y_test, y_pred)\n",
+        "\n",
+        "print(f'Accuracy: {accuracy:.2f}')\n",
+        "print(report)\n"
+      ]
+    }
+  ]
+}
